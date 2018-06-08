@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.HashSet;
 
-
+@Service("userDetails")
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private UserRepository userRepository;
