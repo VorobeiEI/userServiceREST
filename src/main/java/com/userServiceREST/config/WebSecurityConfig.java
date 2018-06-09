@@ -11,10 +11,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
 
 
     @Autowired
@@ -23,7 +25,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public BCryptPasswordEncoder encoder(){
-        return new BCryptPasswordEncoder(4);
+        return new BCryptPasswordEncoder();
     }
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -32,13 +34,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .disable()
                 .authorizeRequests()
                 .antMatchers("/user/registration").permitAll()
-                .antMatchers("/user/**").authenticated();
+                .antMatchers("/").authenticated().and().httpBasic();
+
 
     }
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(encoder());
-        //auth.inMemoryAuthentication().withUser("john").password("$2a$04$H8ndigZIh00E3PnRi8dzN.PTmGOWYnL1mddWGmeK7VrLwTkmRzYwG").roles("USER");
+        //auth.userDetailsService(userDetailsService).passwordEncoder(encoder());
+        String password = "123456";
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String hashedPassword = passwordEncoder.encode(password);
+        auth.inMemoryAuthentication()
+                .withUser("user").password(hashedPassword).roles("USER");
     }
 }
