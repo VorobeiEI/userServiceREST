@@ -1,5 +1,7 @@
 package com.userServiceREST.data;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.persistence.*;
 
 @Entity
@@ -11,8 +13,9 @@ public class User {
     private Long id;
     private String userName;
     private String password;
-    private String confirmPassword;
-
+    @Transient
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private transient String confirmPassword;
 
     public Long getId() {
         return id;
@@ -39,6 +42,7 @@ public class User {
     }
 
     @Transient
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public String getConfirmPassword() {
         return confirmPassword;
     }

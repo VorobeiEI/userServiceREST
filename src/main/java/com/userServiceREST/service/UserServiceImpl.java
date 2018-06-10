@@ -2,6 +2,7 @@ package com.userServiceREST.service;
 
 import com.userServiceREST.data.User;
 import com.userServiceREST.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -53,7 +54,6 @@ public class UserServiceImpl implements UserService {
         userOpt.ifPresent(user -> {
             user.setUserName(updatedUser.getUserName());
             user.setPassword(updatedUser.getPassword());
-            user.setConfirmPassword(updatedUser.getConfirmPassword());
             userRepository.save(user);
         });
 
