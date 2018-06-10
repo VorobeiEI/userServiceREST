@@ -7,19 +7,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
-import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.approval.ApprovalStore;
 import org.springframework.security.oauth2.provider.approval.TokenApprovalStore;
-import org.springframework.security.oauth2.provider.approval.TokenStoreUserApprovalHandler;
-import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
 
@@ -28,13 +22,19 @@ import org.springframework.security.oauth2.provider.token.store.InMemoryTokenSto
 public class OAuth2Config extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private ClientDetailsService clientDetailsService;
+    @Qualifier("userDetails")
+    private UserDetailsService userDetailsService;
+
+
+    @Bean
+    public BCryptPasswordEncoder encoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Autowired
     public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication()
-                .withUser("bill").password("abc123").roles("ADMIN").and()
-                .withUser("bob").password("abc123").roles("USER");
+        auth.userDetailsService(userDetailsService).passwordEncoder(encoder());
+
     }
 
     @Override
@@ -47,25 +47,19 @@ public class OAuth2Config extends WebSecurityConfigurerAdapter {
     }
 
     @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring().antMatchers("/user/registration");
+    }
+
+    @Override
     @Bean
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
 
-
     @Bean
     public TokenStore tokenStore() {
         return new InMemoryTokenStore();
-    }
-
-    @Bean
-    @Autowired
-    public TokenStoreUserApprovalHandler userApprovalHandler(TokenStore tokenStore){
-        TokenStoreUserApprovalHandler handler = new TokenStoreUserApprovalHandler();
-        handler.setTokenStore(tokenStore);
-        handler.setRequestFactory(new DefaultOAuth2RequestFactory(clientDetailsService));
-        handler.setClientDetailsService(clientDetailsService);
-        return handler;
     }
 
     @Bean
@@ -75,8 +69,5 @@ public class OAuth2Config extends WebSecurityConfigurerAdapter {
         store.setTokenStore(tokenStore);
         return store;
     }
-
-
-
 
 }

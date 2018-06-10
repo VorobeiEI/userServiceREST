@@ -3,6 +3,7 @@ package com.userServiceREST.service;
 import com.userServiceREST.data.User;
 import com.userServiceREST.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -28,4 +29,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = userRepository.findByUserName(userName);
         return new org.springframework.security.core.userdetails.User(user.getUserName(), user.getPassword(), Collections.emptyList());
     }
+
+
 }
